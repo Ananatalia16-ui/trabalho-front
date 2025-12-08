@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anotações</title>
+
+<style>
+  body { margin: 0; background: #f4f4f4; font-family: Arial; }
+  header { background: #e6b77f; color: white; padding: 15px; text-align: center; }
+  textarea {
+    width: 100%; height: 350px; margin-top: 20px;
+    padding: 15px; border-radius: 10px; border: 1px solid #ccc;
+  }
+</style>
+
+</head>
+<body>
+
+<header>Anotações</header>
+
+<div style="padding:20px;">
+  <textarea id="anotacoes" placeholder="Escreva aqui..."></textarea>
+  <button onclick="salvar()" style="margin-top:10px;background:#e6b77f;color:#fff;padding:15px;border:none;border-radius:10px;">Salvar</button>
+</div>
+
+<script>
+document.getElementById("anotacoes").value = localStorage.getItem("anotacoesProf") || "";
+
+function salvar() {
+  localStorage.setItem("anotacoesProf", document.getElementById("anotacoes").value);
+  alert("Anotações salvas.");
+}
+</script>
+
+</body>
+</html>

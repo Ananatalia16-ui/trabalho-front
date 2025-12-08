@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frequência e Notas</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+    body { margin: 0; font-family: Arial; background: #f4f4f4; }
+    header { background: #e6b77f; color: #fff; padding: 15px; text-align:center; }
+    .container { padding: 20px; }
+
+    .inputs {
+        margin-bottom: 20px;
+        display: flex;
+        gap: 10px;
+    }
+
+    .inputs input {
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        width: 50%;
+    }
+
+    button {
+        background: #e6b77f;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 8px;
+        cursor: pointer;
+        color: #fff;
+        margin-top: 10px;
+    }
+
+    .aluno {
+        background: #fff;
+        padding: 12px;
+        margin: 8px 0;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
+        gap: 10px;
+        align-items: center;
+    }
+
+    input[type="number"] { width: 70px; padding: 6px; border-radius: 6px; border: 1px solid #ccc; }
+</style>
+</head>
+<body>
+
+<header>Frequência e Avaliações</header>
+
+<div class="container">
+
+<h3>Adicionar novo aluno</h3>
+
+<div class="inputs">
+    <input type="text" id="novoNome" placeholder="Nome do aluno">
+    <input type="text" id="novaMatricula" placeholder="Matrícula">
+</div>
+
+<button onclick="adicionarNovoAluno()">Adicionar Aluno</button>
+
+<hr><br>
+
+<h2>Lista de Alunos</h2>
+<div id="listaAlunos"></div>
+
+<br>
+<button onclick="gerarPDF()">Gerar Relatório em PDF</button>
+
+</div>
+
+<script>
+// LISTA INICIAL DE ALUNOS
+let alunos = [
+    "Ana Natália Carneiro Araújo dos Santos - 01624978",
+    "Bianca Elen Pereira dos Santos - 01789257",
+    "Davi Ferreira Bruno - 01812697",
+    "Denilson Braga Martins - 01802326",
+    "Isadora Bruna Dias de Brito - 01767280",
+    "Guilherme Oliver Silva - 01567893",
+    "José Ryan Rodrigues Carvalho - 01799628",
+    "Lucas Almeida de Oliveira Silva - 01802213",
+    "Lucas de Almeida Inacio Vieira - 01789042",
+    "Vitor Alessandro Carvalho Silva - 01890087"
+];
+
+// FUNÇÃO QUE DESENHA UM ALUNO NA TELA
+function criarLinhaAluno(nome, index) {
+    const lista = document.getElementById("listaAlunos");
+
+    const div = document.createElement("div");
+    div.className = "aluno";
+    div.id = `aluno_${index}`;
+
+    div.innerHTML = `
+        <span><b>${nome}</b></span>
+
+        <select id="presenca${index}">
+            <option value="Presente">Presente</option>
+            <option value="Falta">Falta</option>
+        </select>
+
+        <input type="number" id="av1_${index}" placeholder="AV1" min="0" max="10" onchange="calcularMedia(${index})">
+
+        <input type="number" id="av2_${index}" placeholder="AV2" min="0" max="10" onchange="calcularMedia(${index})">
+
+        <span id="media_${index}">-</span>
+
+        <button onclick="excluirAluno(${index})" style="background:red;">Excluir</button>
+    `;
+
+    lista.appendChild(div);
+}
+
+// CARREGA ALUNOS AO ABRIR A PÁGINA
+window.onload = () => {
+    alunos.forEach((nome, index) => criarLinhaAluno(nome, index));
+};
+
+// ADICIONAR NOVO ALUNO
+function adicionarNovoAluno() {
+    const nome = document.getElementById("novoNome").value.trim();
+    const matricula = document.getElementById("novaMatricula").value.trim();
+
+    if (nome === "" || matricula === "") {
+        alert("Preencha nome e matrícula!");
+        return;
+    }
+
+    const novo = `${nome} - ${matricula}`;
+    alunos.push(novo);
+
+    const index = alunos.length - 1;
+    criarLinhaAluno(novo, index);
+
+    document.getElementById("novoNome").value = "";
+    document.getElementById("novaMatricula").value = "";
+}
+
+// EXCLUIR ALUNO
+function excluirAluno(index) {
+    alunos.splice(index, 1);
+    document.getElementById(`aluno_${index}`).remove();
+    reconstruirLista();
+}
+
+// RECONSTRÓI A LISTA APÓS EXCLUSÃO
+function reconstruirLista() {
+    const lista = document.getElementById("listaAlunos");
+    lista.innerHTML = "";
+
+    alunos.forEach((nome, index) => criarLinhaAluno(nome, index));
+}
+
+// CALCULA MÉDIA
+function calcularMedia(i) {
+    const av1 = parseFloat(document.getElementById(`av1_${i}`).value) || 0;
+    const av2 = parseFloat(document.getElementById(`av2_${i}`).value) || 0;
+
+    const media = ((av1 + av2) / 2).toFixed(1);
+    const campo = document.getElementById(`media_${i}`);
+
+    if (media >= 7) {
+        campo.innerHTML = `<span style="color: green; font-weight: bold;">${media} (Aprovado)</span>`;
+    } else {
+        campo.innerHTML = `<span style="color: red; font-weight: bold;">${media} (Reprovado)</span>`;
+    }
+}
+
+// GERA PDF
+function gerarPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    doc.setFontSize(14);
+    doc.text("Relatório de Presença e Notas", 10, 10);
+
+    let y = 20;
+
+    alunos.forEach((nome, index) => {
+        const presenca = document.getElementById(`presenca${index}`).value;
+        const av1 = document.getElementById(`av1_${index}`).value || "-";
+        const av2 = document.getElementById(`av2_${index}`).value || "-";
+        const mediaTexto = document.getElementById(`media_${index}`).innerText;
+
+        doc.setFontSize(11);
+        doc.text(`${nome}`, 10, y);
+        y += 6;
+        doc.text(`Presença: ${presenca} | AV1: ${av1} | AV2: ${av2} | ${mediaTexto}`, 10, y);
+        y += 10;
+
+        if (y > 280) { doc.addPage(); y = 20; }
+    });
+
+    doc.save("relatorio_alunos.pdf");
+}
+
+</script>
+
+</body>
+</html>

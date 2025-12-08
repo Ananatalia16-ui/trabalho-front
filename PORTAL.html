@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard - Agenda Lecione</title>
+
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
+  }
+
+  header {
+    background: #e6b77f;
+    padding: 15px;
+    color: #fff;
+    font-size: 20px;
+    text-align: center;
+  }
+
+  .container {
+    padding: 20px;
+  }
+
+  .menu-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+  }
+
+  .card {
+    padding: 25px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    text-align: center;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+
+  .card:hover {
+    background: #e6b77f;
+    color: #fff;
+  }
+</style>
+</head>
+
+<body>
+
+<header>Portal Lecione </header>
+
+<div class="container">
+  <div class="menu-grid">
+    <div class="card" onclick="location.href='PLANO DE AULA.html'">PLANO DE AULA</div>
+    <div class="card" onclick="location.href='AGENDA DE COMPROMISSOS.html'">AGENDA DE COMPROMISSOS</div>
+    <div class="card" onclick="location.href='ALUNOS E FREQUÊNCIA.html'">ALUNOS E FREQUÊNCIA</div>
+    <div class="card" onclick="location.href='ANOTAÇÕES.html'">ANOTAÇÕES</div>
+
+  </div>
+</div>
+
+</body>
+</html>

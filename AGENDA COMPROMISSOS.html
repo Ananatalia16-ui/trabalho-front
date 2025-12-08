@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Agenda do Professor</title>
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f0f2f5;
+  }
+  header {
+    background: #e6b77f;
+    padding: 18px;
+    color: #fff;
+    text-align: center;
+    font-size: 22px;
+    letter-spacing: 1px;
+  }
+  .container {
+    max-width: 1000px;
+    margin: 20px auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  }
+  input, select, button {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 15px;
+    height: 44px;
+    box-sizing: border-box;
+  }
+  input[type="time"], input[type="date"] {
+    text-align: center;
+  }
+  button {
+    background: #e6b77f;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+  }
+  button:hover {
+    background: #ce9e66;
+  }
+  .agenda-grid {
+    margin-top: 30px;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+  }
+  .dia-col {
+    background: #fafafa;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+  }
+  .dia-col h3 {
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  .evento {
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    font-size: 14px;
+  }
+  .evento.aula { background: #dce6ff; border-left: 5px solid #3f6ad8; }
+  .evento.reuniao { background: #ffe4d4; border-left: 5px solid #d68045; }
+  .evento.palestra { background: #e0ffd8; border-left: 5px solid #5fa940; }
+  .evento.outro { background: #f9e0ff; border-left: 5px solid #a84ad6; }
+  .actions {
+    margin-top: 8px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .btn-edit {
+    background: #4a90e2;
+    padding: 5px 8px;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+  }
+  .btn-delete {
+    background: #d9534f;
+    padding: 5px 8px;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+  }
+  /* Calendário mensal */
+  #calendar {
+    margin-top: 30px;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+  }
+  .day {
+    background: #fafafa;
+    border: 1px solid #ccc;
+    padding: 10px;
+    min-height: 60px;
+    border-radius: 6px;
+    position: relative;
+  }
+  .day-number {
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  .day-event {
+    font-size: 12px;
+    padding: 2px 4px;
+    border-radius: 4px;
+    margin-bottom: 2px;
+  }
+  .day-event.aula { background: #dce6ff; color: #003366; }
+  .day-event.reuniao { background: #ffe4d4; color: #663300; }
+  .day-event.palestra { background: #e0ffd8; color: #336600; }
+  .day-event.outro { background: #f9e0ff; color: #660066; }
+  .day-today {
+    border: 2px solid #e6b77f;
+  }
+</style>
+</head>
+<body>
+
+<header>📚 Agenda do Professor</header>
+
+<div class="container">
+  <h2>Adicionar Compromisso</h2>
+
+  <input type="date" id="data" min="2025-12-01" max="2026-12-31" />
+
+  <select id="tipo">
+    <option value="aula">Aula</option>
+    <option value="reuniao">Reunião</option>
+    <option value="palestra">Palestra</option>
+    <option value="outro">Outro Evento</option>
+  </select>
+
+  <select id="dia">
+    <option value="">Selecione o dia da semana</option>
+    <option>Segunda</option>
+    <option>Terça</option>
+    <option>Quarta</option>
+    <option>Quinta</option>
+    <option>Sexta</option>
+  </select>
+
+  <input type="time" id="horaInicio" />
+  <input type="time" id="horaFim" />
+  <input type="text" id="atividade" placeholder="Nome da atividade ou aula" />
+
+  <button onclick="adicionar()">Adicionar à Agenda</button>
+
+  <h2>Agenda Semanal</h2>
+  <div class="agenda-grid">
+    <div class="dia-col" id="Segunda"><h3>Segunda</h3></div>
+    <div class="dia-col" id="Terça"><h3>Terça</h3></div>
+    <div class="dia-col" id="Quarta"><h3>Quarta</h3></div>
+    <div class="dia-col" id="Quinta"><h3>Quinta</h3></div>
+    <div class="dia-col" id="Sexta"><h3>Sexta</h3></div>
+  </div>
+
+  <h2>Calendário</h2>
+  <div id="calendar"></div>
+</div>
+
+<script>
+let eventos = [];
+
+function salvar() {
+  localStorage.setItem("agendaProf", JSON.stringify(eventos));
+}
+
+function carregar() {
+  const data = localStorage.getItem("agendaProf");
+  if (data) eventos = JSON.parse(data);
+}
+
+function render() {
+  // Limpa a agenda semanal
+  document.querySelectorAll(".dia-col").forEach(col => col.innerHTML = `<h3>${col.id}</h3>`);
+
+  eventos.forEach((ev, index) => {
+    const diaCol = document.getElementById(ev.dia);
+    // Ignorar eventos com dia inválido (ex.: sábado, domingo ou outros)
+    if (!diaCol) return;
+
+    const div = document.createElement("div");
+    div.className = `evento ${ev.tipo}`;
+    div.innerHTML = `
+      <strong>${ev.horaInicio} às ${ev.horaFim}</strong><br>
+      ${ev.atividade}
+      <div class="actions">
+        <button class="btn-edit" onclick="editar(${index})">Editar</button>
+        <button class="btn-delete" onclick="remover(${index})">Excluir</button>
+      </div>
+    `;
+    diaCol.appendChild(div);
+  });
+
+  renderCalendar();
+}
+
+function adicionar() {
+  const tipo = document.getElementById("tipo").value;
+  const dia = document.getElementById("dia").value;
+  const horaInicio = document.getElementById("horaInicio").value;
+  const horaFim = document.getElementById("horaFim").value;
+  const atividade = document.getElementById("atividade").value;
+  const data = document.getElementById("data").value;
+
+  if (!data || !dia || !horaInicio || !horaFim || !atividade) {
+    alert("Preencha todos os campos!");
+    return;
+  }
+
+  eventos.push({ tipo, dia, horaInicio, horaFim, atividade, data });
+  salvar();
+  render();
+
+  document.getElementById("atividade").value = "";
+  document.getElementById("data").value = "";
+}
+
+function remover(i) {
+  if (confirm("Deseja remover este evento?")) {
+    eventos.splice(i, 1);
+    salvar();
+    render();
+  }
+}
+
+function editar(i) {
+  const ev = eventos[i];
+  document.getElementById("tipo").value = ev.tipo;
+  document.getElementById("dia").value = ev.dia;
+  document.getElementById("horaInicio").value = ev.horaInicio;
+  document.getElementById("horaFim").value = ev.horaFim;
+  document.getElementById("atividade").value = ev.atividade;
+  document.getElementById("data").value = ev.data;
+  remover(i);
+}
+
+function renderCalendar() {
+  const calendarEl = document.getElementById("calendar");
+  calendarEl.innerHTML = "";
+
+  const diasNoMes = 31; // Dezembro 2025
+  const hoje = "2025-12-06"; // Dia atual destacado
+
+  for (let d = 1; d <= diasNoMes; d++) {
+    const dayEl = document.createElement("div");
+    dayEl.className = "day";
+    const dataStr = `2025-12-${d.toString().padStart(2,"0")}`;
+    if (dataStr === hoje) dayEl.classList.add("day-today");
+    dayEl.innerHTML = `<div class="day-number">${d}</div>`;
+
+    eventos.filter(ev => ev.data === dataStr).forEach(ev => {
+      const evDiv = document.createElement("div");
+      evDiv.className = `day-event ${ev.tipo}`;
+      evDiv.textContent = `${ev.horaInicio}-${ev.horaFim} ${ev.atividade}`;
+      dayEl.appendChild(evDiv);
+    });
+
+    calendarEl.appendChild(dayEl);
+  }
+}
+
+const iniciais = [
+  { dia:"Segunda", tipo:"aula", horaInicio:"18:30", horaFim:"19:30", atividade:"Banco de Dados", data:"2025-12-01" },
+  { dia:"Segunda", tipo:"aula", horaInicio:"19:45", horaFim:"20:45", atividade:"Análise e Modelagem de Sistemas", data:"2025-12-01" },
+  { dia:"Terça", tipo:"aula", horaInicio:"18:30", horaFim:"19:30", atividade:"Engenharia de Software", data:"2025-12-02" },
+  { dia:"Terça", tipo:"aula", horaInicio:"19:45", horaFim:"20:45", atividade:"Front-End", data:"2025-12-02" },
+  { dia:"Quarta", tipo:"aula", horaInicio:"18:30", horaFim:"19:30", atividade:"Lógica de Programação", data:"2025-12-03" },
+  { dia:"Quarta", tipo:"aula", horaInicio:"19:45", horaFim:"20:45", atividade:"Back-End", data:"2025-12-03" },
+  { dia:"Quinta", tipo:"aula", horaInicio:"18:30", horaFim:"19:30", atividade:"Desenvolvimento e Aplicações Web", data:"2025-12-04" },
+  { dia:"Quinta", tipo:"aula", horaInicio:"19:45", horaFim:"20:45", atividade:"Banco de Dados", data:"2025-12-04" },
+  { dia:"Sexta", tipo:"aula", horaInicio:"18:30", horaFim:"19:30", atividade:"Programação Orientada a Objetos", data:"2025-12-05" },
+  { dia:"Sexta", tipo:"aula", horaInicio:"19:45", horaFim:"20:45", atividade:"Programação Orientada a Objetos", data:"2025-12-05" },
+];
+
+carregar();
+if (eventos.length === 0) {
+  eventos = iniciais;
+  salvar();
+}
+render();
+</script>
+
+</body>
+</html>

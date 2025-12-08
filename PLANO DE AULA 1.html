@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plano de Aula</title>
+
+<style>
+  body {
+    margin: 0;
+    background: #f9f9f9;
+    font-family: Arial;
+  }
+
+  header {
+    background: #e6b77f;
+    padding: 15px;
+    color: #fff;
+    font-size: 20px;
+    text-align: center;
+  }
+
+  .container {
+    padding: 20px;
+    max-width: 700px;
+    margin: auto;
+  }
+
+  input, textarea {
+    width: 100%;
+    padding: 18px;
+    margin: 15px 0;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    font-size: 15px;
+    background: #fff;
+    box-sizing: border-box; /* GARANTE TAMANHO EXATO */
+  }
+
+  textarea {
+    height: 180px;
+  }
+
+  button {
+    width: 100%;             /* IGUAL AOS INPUTS */
+    padding: 18px;           /* MESMO PADRÃO DOS INPUTS */
+    margin: 15px 0;          /* MESMO ESPAÇAMENTO */
+    background: #e6b77f;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    box-sizing: border-box;  /* GARANTE QUE NADA FIQUE TORTO */
+  }
+
+  button:hover {
+    background: #d49e65;
+  }
+
+  .plano-item {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    margin-top: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+
+  .actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+  }
+
+  .actions button {
+    flex: 1;
+  }
+
+  @media print {
+    header, .container button, .actions button {
+      display: none;
+    }
+    .plano-item {
+      box-shadow: none;
+      border: 1px solid #000;
+    }
+  }
+</style>
+
+</head>
+<body>
+
+<header>Plano de Aula</header>
+
+<div class="container">
+
+  <h3>Criar novo plano de aula</h3>
+
+  <input id="disciplina" type="text" placeholder="Disciplina">
+
+  <input id="data" type="text" placeholder="Data de aula">
+
+  <textarea id="conteudo" placeholder="Conteúdo / Objetivos"></textarea>
+
+  <button onclick="adicionarPlano()">Salvar Plano</button>
+
+  <h3>Planos criados</h3>
+  <div id="listaPlanos"></div>
+
+</div>
+
+<script>
+function adicionarPlano(modelo = false) {
+
+  let disciplina, data, conteudo;
+
+  // se for modelo automático
+  if (modelo === "modelo") {
+    disciplina = "ANÁLISE E DESENVOLVIMENTO DE SISTEMAS";
+    data = "09/12/2025";
+    conteudo = `Front-end Back-end e Full Stack
+
+Front-end e Back-end são termos que servem para diferenciar qual é a área da programação que as pessoas desenvolvedoras trabalham.
+
+O objetivo desse artigo é explicar o que é cada uma dessas áreas, quais suas principais características e linguagens e, principalmente, como diferenciar uma área da outra.
+
+De forma geral, o Front-end compreende a parte visual de sites e aplicações, envolvendo HTML, CSS e JavaScript.
+
+O Back-end compreende o funcionamento interno da aplicação, banco de dados, regras de negócio e APIs, usando linguagens como Java, PHP, Ruby, C#, entre outras.
+
+Full Stack é o profissional que atua tanto no Front quanto no Back-end.
+
+FONTE: ALURA`;
+  } 
+  else {
+    disciplina = document.getElementById('disciplina').value;
+    data = document.getElementById('data').value;
+    conteudo = document.getElementById('conteudo').value;
+
+    if (!disciplina || !data || !conteudo) {
+      alert("Preencha todos os campos!");
+      return;
+    }
+  }
+
+  const lista = document.getElementById('listaPlanos');
+
+  const item = document.createElement("div");
+  item.className = "plano-item";
+
+  item.innerHTML = `
+    <strong style="font-size:20px">${disciplina}</strong><br><br>
+    <b>Data: ${data}</b><br><br>
+    <p style="white-space:pre-line;">${conteudo}</p>
+
+    <div class="actions">
+      <button onclick="imprimir(this.parentNode.parentNode)">Gerar PDF</button>
+    </div>
+  `;
+
+  lista.appendChild(item);
+
+  // Limpar campos
+  document.getElementById('disciplina').value = "";
+  document.getElementById('data').value = "";
+  document.getElementById('conteudo').value = "";
+}
+
+// Função para gerar PDF
+function imprimir(elemento) {
+  const conteudo = elemento.innerHTML;
+  const original = document.body.innerHTML;
+
+  document.body.innerHTML = conteudo;
+  window.print();
+  document.body.innerHTML = original;
+}
+</script>
+
+<!-- BOTÃO PARA ADICIONAR O PLANO MODELO -->
+<div class="container">
+  <button style="background:#333;" onclick="adicionarPlano('modelo')">PLANOS DE AULA </button>
+</div>
+
+</body>
+</html>
