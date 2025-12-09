@@ -92,9 +92,13 @@
       <input id="usuario" type="text" placeholder="Usuário" required>
       <input id="senha" type="password" placeholder="Senha" required>
       <button type="submit">Entrar</button>
+
     </form>
 
     <p>Esqueceu a senha? <a href="#">Recupere seu acesso.</a></p>
+   
+
+    
   </div>
   
 
@@ -117,8 +121,8 @@
 
       if (loginDigitado === loginCorreto && senhaDigitada === senhaCorreta) {
         alert("Login realizado com sucesso!");
-        // Redirecionar para outra aba/página:
-        // window.location.href = "PORTAL.html";
+        
+        window.location.href = "PORTAL.html";   
       } else {
         alert("Usuário ou senha incorretos!");
       }
